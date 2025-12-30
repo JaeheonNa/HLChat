@@ -27,9 +27,10 @@ async def websocket_endpoint(websocket: WebSocket,
                              redis_publisher: Redis = Depends(get_redis_publisher),
                              redis_subscriber: Redis = Depends(get_redis_subscriber)):
     await websocket.accept()
-    redis_producer = RedisStreamProducer(redis_publisher)
-    message_handelr = MessageHandler(mongo_client, redis_producer)
-    await message_handelr.sendSavedMessage(websocket, room_id)
+
+    message_handler = MessageHandler(mongo_client, RedisStreamProducer(redis_publisher))
+    await message_handler.getSavedMessage(websocket, room_id)
+
     redis_subscriber = RedisStreamSubscriber(redis_subscriber, websocket)
     await redis_subscriber.subscribe(room_id=room_id)
 

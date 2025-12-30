@@ -47,7 +47,7 @@ class MessageHandler():
         self.saveMessage(request)
         self.sendMessage(request)
 
-    async def sendSavedMessage(self, websocket: WebSocket, room_id: str):
+    async def getSavedMessage(self, websocket: WebSocket, room_id: str):
         db = self.mongo_client['local']
         collection = db['messages']
         cursor = (collection.find({'room_id': room_id})
