@@ -7,17 +7,20 @@ from starlette.websockets import WebSocket
 
 from database.mongo import get_mongo_client
 from schema.request import SendMessageRequest
-from service.redisStream import RedisStreamProducer
+from service.messageServiceInterface import MessageHandlerInterface
+from service.redisStream import RedisStreamProducer, RedisStreamSubscriber
 
 
-class MessageHandler():
+class MessageHandler(MessageHandlerInterface):
 
     def __init__(self,
                  mongo_client: MongoClient = Depends(get_mongo_client),
-                 redis_producer: RedisStreamProducer = Depends(RedisStreamProducer)
+                 redis_producer: RedisStreamProducer = Depends(RedisStreamProducer),
+                 redis_subscriber: RedisStreamSubscriber = Depends(RedisStreamSubscriber),
     ):
         self.mongo_client = mongo_client
         self.redis_producer = redis_producer
+        self.redis_subscriber = redis_subscriber
 
     def saveMessage(self, request: SendMessageRequest):
         db = self.mongo_client['local']
@@ -65,3 +68,6 @@ class MessageHandler():
                 "message" : msg['message'],
             }
             await websocket.send_json(response_body)
+
+    async def subscribe_message(self, room_id: str, websocket: WebSocket):
+        await self.redis_subscriber.subscribe_message(room_id, websocket)

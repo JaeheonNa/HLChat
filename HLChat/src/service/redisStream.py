@@ -14,12 +14,15 @@ class RedisStreamProducer():
     def publish_message(self, room_id: str, message: dict):
         self.redis_producer.publish(room_id, json.dumps(message))
 
+
+
+
 class RedisStreamSubscriber():
     def __init__(self, redis_subscriber: Redis = Depends(get_redis_subscriber)):
         self.redis_subscriber = redis_subscriber
         self.pub_sub = redis_subscriber.pubsub()
 
-    async def subscribe(self, room_id: str, websocket: WebSocket):
+    async def subscribe_message(self, room_id: str, websocket: WebSocket):
         await self.pub_sub.subscribe(room_id)
 
         async for message in self.pub_sub.listen():
