@@ -2,7 +2,6 @@ import datetime
 
 import pymongo
 from fastapi import Depends
-from pymongo import MongoClient
 from starlette.websockets import WebSocket
 from typing_extensions import override
 
@@ -10,8 +9,8 @@ from database.databaseInterface import DatabaseInterface
 from database.mongo import MongoDBClient
 from schema.request import SendMessageRequest
 from service.messageServiceInterface import MessageHandlerInterface
-from service.pubSubInterface import Subscriber, Producer
-from service.redisStream import RedisStreamProducer, RedisStreamSubscriber
+from channel.pubSubInterface import Subscriber, Producer
+from channel.redisStream import RedisStreamProducer, RedisStreamSubscriber
 
 
 class MessageHandler(MessageHandlerInterface):

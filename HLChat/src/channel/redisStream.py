@@ -6,7 +6,7 @@ from starlette.websockets import WebSocket
 from typing_extensions import override
 
 from channel import get_redis_producer, get_redis_subscriber
-from service.pubSubInterface import Producer, Subscriber
+from channel.pubSubInterface import Producer, Subscriber
 
 
 class RedisStreamProducer(Producer):
