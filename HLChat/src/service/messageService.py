@@ -6,25 +6,27 @@ from pymongo import MongoClient
 from starlette.websockets import WebSocket
 from typing_extensions import override
 
-from database.mongo import get_mongo_client
+from database.databaseInterface import DatabaseInterface
+from database.mongo import MongoDBClient
 from schema.request import SendMessageRequest
 from service.messageServiceInterface import MessageHandlerInterface
+from service.pubSubInterface import Subscriber, Producer
 from service.redisStream import RedisStreamProducer, RedisStreamSubscriber
 
 
 class MessageHandler(MessageHandlerInterface):
 
     def __init__(self,
-                 mongo_client: MongoClient = Depends(get_mongo_client),
-                 redis_producer: RedisStreamProducer = Depends(RedisStreamProducer),
-                 redis_subscriber: RedisStreamSubscriber = Depends(RedisStreamSubscriber)
+                 database_client: DatabaseInterface = Depends(MongoDBClient),
+                 producer: Producer = Depends(RedisStreamProducer),
+                 subscriber: Subscriber = Depends(RedisStreamSubscriber)
     ):
-        self.mongo_client = mongo_client
-        self.redis_producer = redis_producer
-        self.redis_subscriber = redis_subscriber
+        self.database_client = database_client.get_client()
+        self.producer = producer
+        self.subscriber = subscriber
 
     def saveMessage(self, request: SendMessageRequest):
-        db = self.mongo_client['local']
+        db = self.database_client['local']
         if request.room_id is None:
             rooms = db['rooms']
             rooms.insert_one(
@@ -44,7 +46,7 @@ class MessageHandler(MessageHandlerInterface):
              "created_at": datetime.datetime.now()})
 
     def sendMessage(self, request: SendMessageRequest):
-        self.redis_producer.publish_message(
+        self.producer.publish_message(
             request.room_id,
             {
             "sender" : request.sender_id,
@@ -74,4 +76,4 @@ class MessageHandler(MessageHandlerInterface):
 
     @override
     async def subscribe_message(self, room_id: str, websocket: WebSocket):
-        await self.redis_subscriber.subscribe_message(room_id, websocket)
+        await self.subscriber.subscribe_message(room_id, websocket)
