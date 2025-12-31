@@ -1,16 +1,21 @@
 import datetime
 
 import pymongo
+from fastapi import Depends
 from pymongo import MongoClient
 from starlette.websockets import WebSocket
 
+from database.mongo import get_mongo_client
 from schema.request import SendMessageRequest
 from service.redisStream import RedisStreamProducer
 
 
 class MessageHandler():
 
-    def __init__(self, mongo_client: MongoClient, redis_producer: RedisStreamProducer):
+    def __init__(self,
+                 mongo_client: MongoClient = Depends(get_mongo_client),
+                 redis_producer: RedisStreamProducer = Depends(RedisStreamProducer)
+    ):
         self.mongo_client = mongo_client
         self.redis_producer = redis_producer
 
@@ -47,7 +52,7 @@ class MessageHandler():
         self.saveMessage(request)
         self.sendMessage(request)
 
-    async def getSavedMessage(self, websocket: WebSocket, room_id: str):
+    async def getSavedMessage(self, room_id: str, websocket: WebSocket):
         db = self.mongo_client['local']
         collection = db['messages']
         cursor = (collection.find({'room_id': room_id})
