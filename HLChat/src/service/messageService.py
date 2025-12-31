@@ -61,7 +61,7 @@ class MessageHandler(MessageHandlerInterface):
 
     @override
     async def getSavedMessage(self, room_id: str, websocket: WebSocket):
-        db = self.mongo_client['local']
+        db = self.database_client['local']
         collection = db['messages']
         cursor = (collection.find({'room_id': room_id})
                             .sort('created_at', pymongo.DESCENDING)
