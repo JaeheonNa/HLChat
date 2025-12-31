@@ -15,9 +15,10 @@ def sendMessage(
     message_handler.handleMessage(request)
 
 @router.websocket("/{room_id}")
-async def websocket_endpoint(room_id: str,
-                             websocket: WebSocket,
-                             message_handler: MessageHandlerInterface = Depends(MessageHandler)
+async def websocket_endpoint(
+        room_id: str,
+        websocket: WebSocket,
+        message_handler: MessageHandlerInterface = Depends(MessageHandler)
 ):
     await websocket.accept()
     await message_handler.getSavedMessage(room_id=room_id, websocket=websocket)
