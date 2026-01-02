@@ -5,7 +5,7 @@ from redis import Redis
 from starlette.websockets import WebSocket
 from typing_extensions import override
 
-from channel import get_redis_producer, get_redis_subscriber
+from channel.channel import get_redis_producer, get_redis_subscriber
 from channel.pubSubInterface import Producer, Subscriber
 
 
