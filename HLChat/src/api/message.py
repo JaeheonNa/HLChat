@@ -7,7 +7,7 @@ from service.messageServiceInterface import MessageHandlerInterface
 
 router = APIRouter(prefix="/hl-chat")
 
-@router.post("/", status_code=200)
+@router.post("", status_code=200)
 def sendMessage(
         request: SendMessageRequest,
         message_handler: MessageHandlerInterface = Depends(MessageHandler)

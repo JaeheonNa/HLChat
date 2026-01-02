@@ -63,13 +63,14 @@ class MessageHandler(MessageHandlerInterface):
         db = self.database_client['local']
         collection = db['messages']
         cursor = (collection.find({'room_id': room_id})
-                            .sort('created_at', pymongo.DESCENDING)
+                            .sort('created_at', pymongo.ASCENDING)
                             .limit(50))
         latest_messages = list(cursor)
         for msg in latest_messages:
             response_body = {
                 "sender_id" : msg['sender_id'],
                 "message" : msg['message'],
+                "timestamp" : str(msg['created_at'])
             }
             await websocket.send_json(response_body)
 
