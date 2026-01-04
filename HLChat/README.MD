@@ -1,9 +1,0 @@
-pip install fastapi  
-pip install uvicorn     
-pip install sqlalchemy      
-pip install pymongo     
-pip install cryptography        
-pip install pytest      
-pip install httpx       
-pip install pytest-mock        
-pip install redis       
