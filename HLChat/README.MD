@@ -7,3 +7,4 @@ pip install pytest
 pip install httpx       
 pip install pytest-mock        
 pip install redis       
+pip install odmantic
