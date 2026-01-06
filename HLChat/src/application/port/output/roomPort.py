@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.request import SendMessageRequest
+from domain.messageRequest import SendMessageRequest
 
 
 class MongoRoomPort(ABC):

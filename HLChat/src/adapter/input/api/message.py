@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 from starlette.websockets import WebSocket
 
-from domain.request import SendMessageRequest
+from common.security import get_access_token
+from domain.messageRequest import SendMessageRequest
 from application.service.messageService import FindSavedMessageService, SaveAndSendMessageService, \
     SubscribeMessageService
 from application.port.input.messageUsecase import SaveAndSendMessageUsecase, \
@@ -12,6 +13,7 @@ router = APIRouter(prefix="/hl-chat")
 @router.post("", status_code=200)
 async def sendMessage(
         request: SendMessageRequest,
+        access_token = Depends(get_access_token),
         message_handler: SaveAndSendMessageUsecase = Depends(SaveAndSendMessageService)
 ):
     await message_handler.saveAndSendMessage(request)
@@ -20,6 +22,7 @@ async def sendMessage(
 async def websocket_endpoint(
         room_id: int,
         websocket: WebSocket,
+        access_token = Depends(get_access_token),
         findSavedMessageUsecase: FindSavedMessageUsecase = Depends(FindSavedMessageService),
         subscribeMessageUsecase: SubscribeMessageUsecase = Depends(SubscribeMessageService)
 ):

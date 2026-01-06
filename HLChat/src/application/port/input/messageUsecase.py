@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from starlette.websockets import WebSocket
 
-from domain.request import SendMessageRequest
+from domain.messageRequest import SendMessageRequest
 
 class SaveAndSendMessageUsecase(ABC):
     @abstractmethod

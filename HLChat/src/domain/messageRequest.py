@@ -6,3 +6,4 @@ class SendMessageRequest(BaseModel):
     receiver_id: list
     message: str
     message_type: str
+

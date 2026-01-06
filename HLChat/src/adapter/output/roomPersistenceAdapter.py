@@ -5,7 +5,7 @@ from fastapi import Depends
 from application.port.output.roomPort import MongoRoomPort
 from common.mongo import MongoDB
 from domain.odm import HLChatRoom
-from domain.request import SendMessageRequest
+from domain.messageRequest import SendMessageRequest
 from datetime import datetime
 
 from common.mongo import getMonoDB

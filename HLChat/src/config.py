@@ -34,3 +34,8 @@ mysql_url = get_secret("mysql_url")
 mongo_host = get_secret("mongo.host")
 mongo_port = get_secret("mongo.port")
 mongo_db_name = get_secret("mongo.db")
+
+encoding = get_secret("encoding")
+secret_key = get_secret("secret_key")
+jwt_algorithm = get_secret("jwt_algorithm")
+

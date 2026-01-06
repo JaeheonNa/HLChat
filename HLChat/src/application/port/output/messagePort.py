@@ -3,7 +3,7 @@ from typing import Any
 
 from starlette.websockets import WebSocket
 
-from domain.request import SendMessageRequest
+from domain.messageRequest import SendMessageRequest
 
 
 class MongoMessagePort(ABC):

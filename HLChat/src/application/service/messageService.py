@@ -8,7 +8,7 @@ from adapter.output.redisStreamSubscriber import RedisStreamSubscriber
 from adapter.output.roomPersistenceAdapter import RequestRoomPersistenceAdapter
 from application.port.output.messagePort import MongoMessagePort, RedisPublishMessagePort, RedisSubscribeMessagePort
 from application.port.output.roomPort import MongoRoomPort
-from domain.request import SendMessageRequest
+from domain.messageRequest import SendMessageRequest
 from application.port.input.messageUsecase import SaveAndSendMessageUsecase, \
     FindSavedMessageUsecase, SubscribeMessageUsecase
 
@@ -51,7 +51,7 @@ class FindSavedMessageService(FindSavedMessageUsecase):
     @override
     async def findSavedMessage(self, room_id: int, websocket: WebSocket):
         latest_messages = await self.mongoMessagePort.findSavedMessage(room_id)
-        # latest_messages = list(cursor)
+
         for msg in latest_messages:
             response_body = {
                 "sender_id": msg.sender,

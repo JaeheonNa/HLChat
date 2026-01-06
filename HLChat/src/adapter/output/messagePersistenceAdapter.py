@@ -7,7 +7,7 @@ from datetime import datetime
 from application.port.output.messagePort import MongoMessagePort
 from common.mongo import MongoDB
 from domain.odm import HLChatMessage
-from domain.request import SendMessageRequest
+from domain.messageRequest import SendMessageRequest
 from common.mongo import getMonoDB
 
 

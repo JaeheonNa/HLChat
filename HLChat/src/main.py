@@ -1,10 +1,10 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from adapter.input.api import message
-from common.mongo import MongoDB, getMonoDB
+from adapter.input.api import message, user
+from common.mongo import getMonoDB
 
 
 @asynccontextmanager
@@ -18,6 +18,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(message.router)
+app.include_router(user.router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # 프론트엔드 URL
