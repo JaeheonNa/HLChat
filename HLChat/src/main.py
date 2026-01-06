@@ -5,14 +5,29 @@ from starlette.middleware.cors import CORSMiddleware
 
 from adapter.input.api import message, user
 from common.mongo import getMonoDB
+from config import mysql_url
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-
+SessionFactory = None
+mongoDB = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global mongoDB, SessionFactory
+
     mongoDB = getMonoDB()
     mongoDB.connect()
     print("Connected to MongoDB")
+
+    engine = create_engine(mysql_url, echo=True)  # echo=True: SQL을 로그로 찍는 옵션
+    SessionFactory = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    print("Connected to MySQL")
+
     yield
+
+    engine.dispose()
+    print("Disconnected to MySQL")
+
     mongoDB.disconnect()
     print("Disconnected to MongoDB")
 

@@ -1,17 +1,12 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+
 
 from config import mysql_url
-
-engine = create_engine(mysql_url, echo=True)  # echo=True: SQL을 로그로 찍는 옵션
-SessionFactory = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from main import SessionFactory
 
 
 def get_db():
-    session = SessionFactory()
-    try:
-        # yield를 하고 나면, 여기에 의존해 있는 함수가 끝나야 그 다음 코드로 넘어감.
-        # 즉 yield는 함수를 중간에 멈춰놓는 키워드.
+    # SessionFactory.begin() -> Spring의 @Transactional
+    with SessionFactory.begin() as session:
         yield session
-    finally:
-        session.close()
+        # 예외 없으면 자동 commit
+        # 예외 발생 시 자동 rollback

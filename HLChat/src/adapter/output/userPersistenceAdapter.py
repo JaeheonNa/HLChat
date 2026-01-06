@@ -19,7 +19,7 @@ class RequestUserPersistenceAdapter(MariaUserPort):
     @override
     async def saveUser(self, user: User) -> User:
         self.session.add(user)
-        self.session.commit()
+        self.session.flush() # insert는 수행하지만 commit은 수행하지 않음.
         self.session.refresh(user)
         return user
 
