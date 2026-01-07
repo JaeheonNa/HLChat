@@ -4,3 +4,4 @@
 /include
 /lib
 .idea/*
+secrets.json
