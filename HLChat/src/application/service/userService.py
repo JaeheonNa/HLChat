@@ -4,13 +4,15 @@ from fastapi import Depends
 
 from adapter.output.userPersistenceAdapter import RequestUserPersistenceAdapter
 from application.port.input.userUsecase import SaveTempUserUsecase, ChangeUserPasswordUsecase, FindUserUsecase, \
-    LogInUsecase
+    LogInUsecase, UserVerifyJWTUsecase, FindUserByUserIdUsecase
 from application.port.output.userPort import MariaUserPort
+from config import secret_key, jwt_algorithm
 from domain.userRequest import AddTempUserRequest, ChangeUserPasswordRequest
 from domain.orm import User
 from domain.response import UserSchema, UserListSchema, JWTResponse
 from domain.userRequest import LogInRequest
 from fastapi import HTTPException
+from jose import jwt
 
 
 class SaveTempUserService(SaveTempUserUsecase):
@@ -43,7 +45,7 @@ class ChangeUserPasswordService(ChangeUserPasswordUsecase):
             user.active = not inactive
             await self.mariaUserPort.saveUser(user)
 
-class FindUserService(FindUserUsecase):
+class FindUserService(FindUserUsecase, FindUserByUserIdUsecase):
     def __init__(self,
                  mariaUserPort: MariaUserPort = Depends(RequestUserPersistenceAdapter)
     ):
@@ -56,7 +58,12 @@ class FindUserService(FindUserUsecase):
             users=[UserSchema.model_validate(user) for user in users]
         )
 
-
+    @override
+    async def findUserByUserId(self, userId: str) -> UserSchema | None:
+        user = await self.mariaUserPort.findUserByUserId(userId)
+        if user:
+            return UserSchema.model_validate(user)
+        return None
 
 class LogInService(LogInUsecase):
     def __init__(self,

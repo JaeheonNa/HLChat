@@ -19,6 +19,11 @@ class FindUserUsecase(ABC):
     async def findAllUsers(self) -> UserListSchema:
         pass
 
+class FindUserByUserIdUsecase(ABC):
+    @abstractmethod
+    async def findUserByUserId(self, userId: str) -> UserSchema | None:
+        pass
+
 class LogInUsecase(ABC):
     @abstractmethod
     async def logIn(self, request: LogInRequest) -> JWTResponse:

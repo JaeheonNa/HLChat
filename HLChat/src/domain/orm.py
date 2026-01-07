@@ -44,7 +44,8 @@ class User(Base):
             algorithm=jwt_algorithm,
         )
 
-    def decode_jwt(self, access_token: str) -> str:
+    @classmethod
+    def decodeJwt(self, access_token: str) -> str:
         payload: dict = jwt.decode(
             access_token, secret_key, algorithms=[jwt_algorithm]
         )
