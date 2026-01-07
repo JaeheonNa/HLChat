@@ -4,7 +4,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from application.port.output.userPort import MariaUserPort
-from common.mysql import get_db
+from common.mysql import getMySqlSession
 from domain.orm import User
 from sqlalchemy import select
 
@@ -12,7 +12,7 @@ from sqlalchemy import select
 class RequestUserPersistenceAdapter(MariaUserPort):
 
     def __init__(self,
-                 session: Session = Depends(get_db)
+                 session: Session = Depends(getMySqlSession)
     ):
         self.session = session
 

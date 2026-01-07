@@ -24,8 +24,9 @@ mysqlDB = MySqlDB()
 def getMySqlDB():
     return mysqlDB
 
-def get_db():
+def getMySqlSession():
     # SessionFactory.begin() -> Spring의 @Transactional
+    mysqlDB = getMySqlDB()
     if mysqlDB.getSessionFactory():
         with mysqlDB.getSessionFactory().begin() as session:
             yield session
