@@ -4,7 +4,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from application.port.output.userPort import MariaUserPort
-from common.maria import get_db
+from common.mysql import get_db
 from domain.orm import User
 from sqlalchemy import select
 

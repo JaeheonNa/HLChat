@@ -5,31 +5,32 @@ from starlette.middleware.cors import CORSMiddleware
 
 from adapter.input.api import message, user
 from common.mongo import getMonoDB
+from common.mysql import getMySqlDB
 from config import mysql_url
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-SessionFactory = None
 mongoDB = None
+mysqlDB = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global mongoDB, SessionFactory
+    global mongoDB, mysqlDB
 
     mongoDB = getMonoDB()
     mongoDB.connect()
     print("Connected to MongoDB")
 
-    engine = create_engine(mysql_url, echo=True)  # echo=True: SQL을 로그로 찍는 옵션
-    SessionFactory = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    mysqlDB = getMySqlDB()
+    mysqlDB.connect()
     print("Connected to MySQL")
 
     yield
 
-    engine.dispose()
-    print("Disconnected to MySQL")
+    mysqlDB.disconnect()
+    print("Disconnected from MySQL")
 
     mongoDB.disconnect()
-    print("Disconnected to MongoDB")
+    print("Disconnected from MongoDB")
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(message.router)
@@ -41,6 +42,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 @app.get("/")
 def health_check_handler():
     return {"ping": "pong"}

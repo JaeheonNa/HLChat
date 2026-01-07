@@ -19,8 +19,6 @@ class FindUserUsecase(ABC):
     async def findAllUsers(self) -> UserListSchema:
         pass
 
-
-
 class LogInUsecase(ABC):
     @abstractmethod
     async def logIn(self, request: LogInRequest) -> JWTResponse:

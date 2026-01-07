@@ -22,7 +22,7 @@ class User(Base):
 
     def verifyPassword(self, plain_password: str, hashed_password: str) -> bool:
         return bcrypt.checkpw(
-            plain_password.encode(self.encoding), hashed_password.encode(self.encoding)
+            plain_password.encode(encoding), hashed_password.encode(encoding)
         )
 
     @classmethod

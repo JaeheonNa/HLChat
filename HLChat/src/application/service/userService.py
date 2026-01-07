@@ -28,7 +28,7 @@ class SaveTempUserService(SaveTempUserUsecase):
 
 
 class ChangeUserPasswordService(ChangeUserPasswordUsecase):
-    def __init(self,
+    def __init__(self,
                mariaUserPort: MariaUserPort = Depends(RequestUserPersistenceAdapter)
     ):
         self.mariaUserPort = mariaUserPort
@@ -39,11 +39,9 @@ class ChangeUserPasswordService(ChangeUserPasswordUsecase):
         verified: bool = user.verifyPassword(request.password, user.password)
         if verified:
             user.password = User.hashedPassword(request.new_password)
-            inactive: bool = user.verifyPassword(request.user_id, request.new_password)
+            inactive: bool = request.user_id is request.new_password
             user.active = not inactive
             await self.mariaUserPort.saveUser(user)
-
-
 
 class FindUserService(FindUserUsecase):
     def __init__(self,
