@@ -11,6 +11,7 @@ from application.port.input.messageUsecase import SaveAndSendMessageUsecase, \
     FindSavedMessageUsecase, SubscribeMessageUsecase
 from domain.orm import User
 from domain.response import UserSchema
+from domain.userDomain import UserDomain
 
 router = APIRouter(prefix="/hl-chat")
 
@@ -39,7 +40,7 @@ async def websocket_endpoint(
         return
 
     # user = await verify_token(auth_data.get('token'))
-    user_id = User.decodeJWT(authData.get('token'))
+    user_id = UserDomain.decodeJWT(authData.get('token'))
     user: UserSchema | None = await findUserByUserIdUsecase.findUserByUserId(user_id)
     if not user:
         await websocket.close(code=404, reason="User not found")

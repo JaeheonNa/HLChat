@@ -38,4 +38,3 @@ mongo_db_name = get_secret("mongo.db")
 encoding = get_secret("encoding")
 secret_key = get_secret("secret_key")
 jwt_algorithm = get_secret("jwt_algorithm")
-
