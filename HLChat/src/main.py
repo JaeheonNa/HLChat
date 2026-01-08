@@ -37,7 +37,7 @@ app.include_router(message.router)
 app.include_router(user.router)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 프론트엔드 URL
+    allow_origins=["*", "http://localhost:9000"],  # 프론트엔드 URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
