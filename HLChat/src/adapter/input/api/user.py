@@ -5,7 +5,6 @@ from application.port.input.userUsecase import SaveTempUserUsecase, ChangeUserPa
 from application.service.userService import SaveTempUserService, ChangeUserPasswordService, FindUserService, \
     LogInService, ChangeUsernameService
 from common.security import get_access_token
-from domain.response import UserSchema
 from domain.userRequest import AddTempUserRequest, ChangeUserPasswordRequest, LogInRequest, ChangeUsernameRequest
 
 router = APIRouter(prefix="/user")

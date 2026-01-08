@@ -78,7 +78,7 @@ class LogInService(LogInUsecase):
                 verified: bool = UserDomain.verifyPassword(request.password, userDomain.password)
                 if verified:
                     accessToken = userDomain.createJWT()
-                    return JWTResponse(access_token=accessToken)
+                    return JWTResponse(access_token=accessToken, username=userDomain.username)
                 else:
                     raise HTTPException(status_code=401, detail="Not Authorized")
             else:

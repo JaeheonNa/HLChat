@@ -22,3 +22,4 @@ class UserListSchema(BaseModel):
 
 class JWTResponse(BaseModel):
     access_token: str
+    username: str
