@@ -4,7 +4,7 @@ from fastapi import Depends
 
 from adapter.output.userPersistenceAdapter import RequestUserPersistenceAdapter
 from application.port.input.userUsecase import SaveTempUserUsecase, ChangeUserPasswordUsecase, FindUserUsecase, \
-    LogInUsecase, UserVerifyJWTUsecase, FindUserByUserIdUsecase
+    LogInUsecase, FindUserByUserIdUsecase
 from application.port.output.userPort import MariaUserPort
 from config import secret_key, jwt_algorithm
 from domain.userRequest import AddTempUserRequest, ChangeUserPasswordRequest
