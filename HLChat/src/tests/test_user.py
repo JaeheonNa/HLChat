@@ -22,8 +22,8 @@ def test_find_all_users(test_client, mocker):
     assert response.status_code == 200
     assert response.json() == {"users":[
         {
-            "user_id":"P14514",
-            "user_name":"나재헌",
+            "userid":"P14514",
+            "username":"나재헌",
             "active":True
          }
     ]}
@@ -39,7 +39,7 @@ def test_save_temp_user(test_client, mocker):
         return mock_usecase
     app.dependency_overrides[SaveTempUserService] = override_add_user_usecase
 
-    requestBody = {"user_id":"P14514"}
+    requestBody = {"userId":"P14514"}
     response = test_client.post("/user/temp", json=requestBody)
     assert response.status_code == 201
-    assert response.json() == {"user_id":"P14514", "active": False, "user_name":None}
+    assert response.json() == {"userId":"P14514", "active": False, "username":None}

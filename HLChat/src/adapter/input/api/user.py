@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends
 
 from application.port.input.userUsecase import SaveTempUserUsecase, ChangeUserPasswordUsecase, FindUserUsecase, \
-    LogInUsecase
+    LogInUsecase, ChangeUsernameUsecase
 from application.service.userService import SaveTempUserService, ChangeUserPasswordService, FindUserService, \
-    LogInService
-from domain.userRequest import AddTempUserRequest, ChangeUserPasswordRequest, LogInRequest
+    LogInService, ChangeUsernameService
+from common.security import get_access_token
+from domain.response import UserSchema
+from domain.userRequest import AddTempUserRequest, ChangeUserPasswordRequest, LogInRequest, ChangeUsernameRequest
 
 router = APIRouter(prefix="/user")
 
@@ -21,8 +23,17 @@ async def changePassword(request: ChangeUserPasswordRequest,
 ):
     await userHandler.changeUserPassword(request)
 
+@router.put("/username", status_code=202)
+async def changeUsername(request: ChangeUsernameRequest,
+                         access_token: str = Depends(get_access_token),
+                         userHandler: ChangeUsernameUsecase = Depends(ChangeUsernameService)
+):
+    return await userHandler.changeUsername(access_token, request)
+
 @router.get("", status_code=200)
-async def findAllUsers(userHandler: FindUserUsecase = Depends(FindUserService)):
+async def findAllUsers(access_token = Depends(get_access_token),
+                       userHandler: FindUserUsecase = Depends(FindUserService)
+):
     return await userHandler.findAllUsers()
 
 @router.post("/log-in", status_code=200)

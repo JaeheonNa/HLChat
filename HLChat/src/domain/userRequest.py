@@ -14,3 +14,6 @@ class ChangeUserPasswordRequest(BaseModel):
 class LogInRequest(BaseModel):
     user_id: str
     password: str
+
+class ChangeUsernameRequest(BaseModel):
+    username: str

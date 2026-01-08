@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.userRequest import AddTempUserRequest, ChangeUserPasswordRequest, LogInRequest
+from domain.userRequest import AddTempUserRequest, ChangeUserPasswordRequest, LogInRequest, ChangeUsernameRequest
 from domain.response import UserListSchema, UserSchema, JWTResponse
 
 
@@ -27,4 +27,9 @@ class FindUserByUserIdUsecase(ABC):
 class LogInUsecase(ABC):
     @abstractmethod
     async def logIn(self, request: LogInRequest) -> JWTResponse:
+        pass
+
+class ChangeUsernameUsecase(ABC):
+    @abstractmethod
+    async def changeUsername(self, access_token: str, request: ChangeUsernameRequest) -> UserSchema:
         pass
