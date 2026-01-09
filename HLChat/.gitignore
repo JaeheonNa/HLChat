@@ -1,0 +1,10 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+*.pyc
+bin
+include
+lib
+.idea/*
+secrets.json
+../bin
+../include
+../lib
