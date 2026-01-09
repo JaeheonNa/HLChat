@@ -5,6 +5,7 @@ from domain.response import UserListSchema, UserSchema
 from main import app
 
 def test_find_all_users(test_client, mocker):
+
     from domain.orm import User
     user = User(user_id="P14514", user_name="나재헌", active=True)
     expected_response = UserListSchema(users=[user])
