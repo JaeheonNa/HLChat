@@ -1,21 +1,48 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from api import message
+from adapter.input.api import message, user, room
+from common.mongo import getMonoDB
+from common.mysql import getMySqlDB
+from config import mysql_url
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-app = FastAPI(redirect_slashes=False)
+mongoDB = None
+mysqlDB = None
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global mongoDB, mysqlDB
+
+    mongoDB = getMonoDB()
+    mongoDB.connect()
+    print("Connected to MongoDB")
+
+    mysqlDB = getMySqlDB()
+    mysqlDB.connect()
+    print("Connected to MySQL")
+
+    yield
+
+    mysqlDB.disconnect()
+    print("Disconnected from MySQL")
+
+    mongoDB.disconnect()
+    print("Disconnected from MongoDB")
+
+app = FastAPI(lifespan=lifespan)
+app.include_router(message.router)
+app.include_router(user.router)
+app.include_router(room.router)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:9000",  # Quasar 개발 서버
-        "http://127.0.0.1:9000"
-    ],
+    allow_origins=["*", "http://localhost:9000"],  # 프론트엔드 URL
     allow_credentials=True,
-    allow_methods=["*"],  # 모든 HTTP 메서드 허용
-    allow_headers=["*"],  # 모든 헤더 허용
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-
-app.include_router(message.router)
 
 @app.get("/")
 def health_check_handler():
