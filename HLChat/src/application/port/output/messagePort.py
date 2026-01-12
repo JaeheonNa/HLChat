@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, List
 
 from starlette.websockets import WebSocket
 
 from domain.messageRequest import SendMessageRequest
+from domain.odm import HLChatMessage
 
 
 class MongoMessagePort(ABC):
@@ -12,7 +13,7 @@ class MongoMessagePort(ABC):
         pass
 
     @abstractmethod
-    async def findSavedMessage(self, room_id: int):
+    async def findSavedMessage(self, room_id: int) -> List[HLChatMessage] | None:
         pass
 
 

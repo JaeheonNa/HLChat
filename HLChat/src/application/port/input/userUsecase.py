@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List, Dict
 
 from domain.userRequest import AddTempUserRequest, ChangeUserPasswordRequest, LogInRequest, ChangeUsernameRequest
 from domain.response import UserListSchema, UserSchema, JWTResponse
@@ -32,4 +33,9 @@ class LogInUsecase(ABC):
 class ChangeUsernameUsecase(ABC):
     @abstractmethod
     async def changeUsername(self, access_token: str, request: ChangeUsernameRequest) -> UserSchema:
+        pass
+
+class FindUserByRoomIdUsecase(ABC):
+    @abstractmethod
+    async def findUserByRoomId(self, roomId: int) -> Dict[str, str] | None:
         pass

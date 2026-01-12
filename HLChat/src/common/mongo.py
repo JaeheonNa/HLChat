@@ -14,6 +14,9 @@ class MongoDB():
     def disconnect(self):
         self.client.close()
 
+    def getEngine(self):
+        return self.engine
+
 mongodb = MongoDB()
 
 def getMonoDB():

@@ -8,7 +8,7 @@ from common.mysql import getMySqlSession
 from domain.orm import User
 from sqlalchemy import select
 
-from domain.response import UserSchema
+from domain.response import UserSchema, UserListSchema
 from domain.userDomain import UserDomain
 
 
@@ -43,3 +43,10 @@ class RequestUserPersistenceAdapter(MariaUserPort):
     async def findAllUsers(self) -> List[UserSchema]:
         users = self.session.scalars(select(User))
         return [UserSchema.model_validate(user) for user in users]
+
+    @override
+    async def findUsersByUserIds(self, user_id_list: List[str]) -> List[UserDomain] | None:
+        users: List[User] = self.session.scalars(select(User)
+                                                       .where(User.user_id.in_(user_id_list))
+                                                       .where(User.active == True))
+        return [UserDomain(userId=user.user_id, username=user.user_name, password=None, active=True) for user in users]

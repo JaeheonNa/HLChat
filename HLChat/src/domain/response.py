@@ -4,11 +4,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class UserSchema(BaseModel):
-    def __init__(self, userId: str, username: str, active: bool):
-        self.userId = userId
-        self.username = username
-        self.active = active
-
     userId: str = Field(alias="user_id")
     username: str | None = Field(default=None, alias="user_name")
     active: bool

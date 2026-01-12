@@ -1,12 +1,15 @@
-from typing import override, List
+from typing import override, List, Dict
 
 from fastapi import Depends
 
+from adapter.output.roomPersistenceAdapter import RequestRoomPersistenceAdapter
 from adapter.output.userPersistenceAdapter import RequestUserPersistenceAdapter
 from application.port.input.userUsecase import SaveTempUserUsecase, ChangeUserPasswordUsecase, FindUserUsecase, \
-    LogInUsecase, FindUserByUserIdUsecase, ChangeUsernameUsecase
+    LogInUsecase, FindUserByUserIdUsecase, ChangeUsernameUsecase, FindUserByRoomIdUsecase
+from application.port.output.roomPort import MongoRoomPort
 from application.port.output.userPort import MariaUserPort
 from config import secret_key, jwt_algorithm
+from domain.roomDomain import RoomDomain
 from domain.userDomain import UserDomain
 from domain.userRequest import AddTempUserRequest, ChangeUserPasswordRequest, ChangeUsernameRequest
 from domain.orm import User
@@ -97,3 +100,22 @@ class ChangeUsernameService(ChangeUsernameUsecase):
         userDomain: UserDomain = await self.mariaUserPort.findUserByUserId(user_id)
         userDomain.setUsername(request.username)
         return await self.mariaUserPort.saveUser(userDomain)
+
+class FindUserByRoomIdService(FindUserByRoomIdUsecase):
+    def __init__(self,
+                 mongoRoomPort: MongoRoomPort = Depends(RequestRoomPersistenceAdapter),
+                 mariaUserPort: MariaUserPort = Depends(RequestUserPersistenceAdapter)):
+        self.mongoRoomPort = mongoRoomPort
+        self.mariaUserPort = mariaUserPort
+
+
+    @override
+    async def findUserByRoomId(self, room_id: int) -> Dict[str, str]:
+        room: RoomDomain = await self.mongoRoomPort.findRoomByRoomId(room_id)
+        members: List[str] = room.members
+        users: List[UserDomain] = await self.mariaUserPort.findUsersByUserIds(members)
+        usersDict = dict()
+        for user in users:
+            usersDict[user.userId] = user.username
+
+        return usersDict

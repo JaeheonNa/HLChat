@@ -1,10 +1,11 @@
 from datetime import datetime
+from typing import List
 
 from odmantic import AIOEngine, Model
 
 class HLChatRoom(Model):
     room_id: int
-    members: list
+    members: List[str]
     created_at: datetime
 
     # Collection Name 지정.

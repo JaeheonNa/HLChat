@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 
 from application.port.input.userUsecase import SaveTempUserUsecase, ChangeUserPasswordUsecase, FindUserUsecase, \
-    LogInUsecase, ChangeUsernameUsecase
+    LogInUsecase, ChangeUsernameUsecase, FindUserByRoomIdUsecase
 from application.service.userService import SaveTempUserService, ChangeUserPasswordService, FindUserService, \
-    LogInService, ChangeUsernameService
+    LogInService, ChangeUsernameService, FindUserByRoomIdService
 from common.security import get_access_token
 from domain.userRequest import AddTempUserRequest, ChangeUserPasswordRequest, LogInRequest, ChangeUsernameRequest
 
@@ -40,3 +40,9 @@ async def logIn(request: LogInRequest,
                 userHandler: LogInUsecase = Depends(LogInService)
 ):
     return await userHandler.logIn(request)
+
+@router.get("/{room_id}", status_code=200)
+async def findUserByRoomId(room_id: int,
+                           userHandler: FindUserByRoomIdUsecase = Depends(FindUserByRoomIdService)):
+    print("room_id: ", room_id)
+    return await userHandler.findUserByRoomId(room_id)

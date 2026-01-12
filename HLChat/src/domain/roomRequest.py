@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 
-class SendMessageRequest(BaseModel):
+class SaveRoomRequest(BaseModel):
     room_id: int | None = None
     sender_id: str
-    message: str
-    message_type: str
+    receiver_id: list

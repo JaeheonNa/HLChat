@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import Depends
 from starlette.websockets import WebSocket
 from typing_extensions import override
@@ -6,11 +8,17 @@ from adapter.output.messagePersistenceAdapter import RequestMessagePersistenceAd
 from adapter.output.redisStreamProducer import RedisStreamProducer
 from adapter.output.redisStreamSubscriber import RedisStreamSubscriber
 from adapter.output.roomPersistenceAdapter import RequestRoomPersistenceAdapter
+from adapter.output.userPersistenceAdapter import RequestUserPersistenceAdapter
 from application.port.output.messagePort import MongoMessagePort, RedisPublishMessagePort, RedisSubscribeMessagePort
 from application.port.output.roomPort import MongoRoomPort
+from application.port.output.userPort import MariaUserPort
 from domain.messageRequest import SendMessageRequest
 from application.port.input.messageUsecase import SaveAndSendMessageUsecase, \
     FindSavedMessageUsecase, SubscribeMessageUsecase
+from domain.odm import HLChatMessage
+from domain.roomDomain import RoomDomain
+from domain.roomRequest import SaveRoomRequest
+from domain.userDomain import UserDomain
 
 
 class SaveAndSendMessageService(SaveAndSendMessageUsecase):
@@ -24,15 +32,13 @@ class SaveAndSendMessageService(SaveAndSendMessageUsecase):
         self.redisMessagePort = redisMessagePort
 
     async def saveMessage(self, request: SendMessageRequest):
-        if request.room_id is None:
-            request.room_id = await self.mongoRoomPort.save_room(request)
         await self.mongoMessagePort.saveMessage(request)
 
     def sendMessage(self, request: SendMessageRequest):
         self.redisMessagePort.publishMessage(
             str(request.room_id),
             {
-                "sender": request.sender_id,
+                "sender_id": request.sender_id,
                 "message": request.message
             }
         )
@@ -44,14 +50,17 @@ class SaveAndSendMessageService(SaveAndSendMessageUsecase):
 
 class FindSavedMessageService(FindSavedMessageUsecase):
     def __init__ (self,
-                  mongoMessagePort: MongoMessagePort = Depends(RequestMessagePersistenceAdapter)
+                  mongoMessagePort: MongoMessagePort = Depends(RequestMessagePersistenceAdapter),
+                  mongoRoomPort: MongoRoomPort = Depends(RequestRoomPersistenceAdapter),
+                  mariaUserPort: MariaUserPort = Depends(RequestUserPersistenceAdapter)
     ):
         self.mongoMessagePort = mongoMessagePort
+        self.mongoRoomPort = mongoRoomPort
+        self.mariaUserPort = mariaUserPort
 
     @override
     async def findSavedMessage(self, room_id: int, websocket: WebSocket):
-        latest_messages = await self.mongoMessagePort.findSavedMessage(room_id)
-
+        latest_messages: List[HLChatMessage] = await self.mongoMessagePort.findSavedMessage(room_id)
         for msg in latest_messages:
             response_body = {
                 "sender_id": msg.sender,
