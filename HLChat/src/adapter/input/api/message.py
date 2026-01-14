@@ -10,7 +10,7 @@ from application.service.messageService import SaveAndSendMessageService, \
     SubscribeMessageService, FindSavedMessageService
 from application.service.roomService import FindAllRoomsByUserIdService, \
     FindAndSendAllRoomsLastMessagesService
-from application.service.userService import FindUserService, FindUserWithSocketService
+from application.service.userService import FindUserWithSocketService
 from common.security import get_access_token
 from domain.messageRequest import SendMessageRequest
 from domain.response import UserSchema, RoomListSchema

@@ -1,12 +1,5 @@
-from datetime import datetime, timedelta
-
-import bcrypt
-from jose import jwt
-from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
-from sqlalchemy.orm import declarative_base, relationship
-
-from domain.userRequest import AddTempUserRequest
-from config import secret_key, encoding, jwt_algorithm
+from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
