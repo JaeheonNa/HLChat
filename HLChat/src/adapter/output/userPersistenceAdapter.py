@@ -41,7 +41,7 @@ class RequestUserPersistenceAdapter(MariaUserPort):
 
     @override
     async def findAllUsers(self) -> List[UserSchema]:
-        users = self.session.scalars(select(User))
+        users = self.session.scalars(select(User).where(User.active == True))
         return [UserSchema.model_validate(user) for user in users]
 
     @override
