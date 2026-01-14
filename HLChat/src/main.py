@@ -6,9 +6,6 @@ from starlette.middleware.cors import CORSMiddleware
 from adapter.input.api import message, user, room
 from common.mongo import getMonoDB
 from common.mysql import getMySqlDB
-from config import mysql_url
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 mongoDB = None
 mysqlDB = None

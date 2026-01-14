@@ -27,14 +27,14 @@ class RequestMessagePersistenceAdapter(MongoMessagePort):
 
     @override
     async def saveMessage(self, request: SendMessageRequest):
-        new_message_ln_no = await self.find_message_ln_no(request)
-        print("new_message_ln_no: ", new_message_ln_no)
+        newMessageLnNo = await self.find_message_ln_no(request)
         new_message = HLChatMessage(room_id=request.room_id,
-                                message_ln_no=new_message_ln_no,
+                                message_ln_no=newMessageLnNo,
                                 sender=request.sender_id,
                                 message=request.message,
                                 created_at=datetime.now())
         await self.mongo_db.save(new_message)
+        return newMessageLnNo
 
     @override
     async def findSavedMessage(self, room_id: int):

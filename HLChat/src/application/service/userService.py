@@ -1,6 +1,7 @@
 from typing import override, List, Dict
 
 from fastapi import Depends
+from fastapi import HTTPException
 
 from adapter.output.roomPersistenceAdapter import RequestRoomPersistenceAdapter
 from adapter.output.userPersistenceAdapter import RequestUserPersistenceAdapter
@@ -8,15 +9,12 @@ from application.port.input.userUsecase import SaveTempUserUsecase, ChangeUserPa
     LogInUsecase, FindUserByUserIdUsecase, ChangeUsernameUsecase, FindUserByRoomIdUsecase
 from application.port.output.roomPort import MongoRoomPort
 from application.port.output.userPort import MariaUserPort
-from config import secret_key, jwt_algorithm
+from common.mysql import getMySqlDB
+from domain.response import UserSchema, UserListSchema, JWTResponse
 from domain.roomDomain import RoomDomain
 from domain.userDomain import UserDomain
 from domain.userRequest import AddTempUserRequest, ChangeUserPasswordRequest, ChangeUsernameRequest
-from domain.orm import User
-from domain.response import UserSchema, UserListSchema, JWTResponse
 from domain.userRequest import LogInRequest
-from fastapi import HTTPException
-from jose import jwt
 
 
 class SaveTempUserService(SaveTempUserUsecase):
@@ -27,8 +25,12 @@ class SaveTempUserService(SaveTempUserUsecase):
 
     @override
     async def saveTempUser(self, request: AddTempUserRequest):
-        userDomain: UserDomain = UserDomain.createTempUser(request)
-        return await self.mariaUserPort.saveUser(userDomain)
+        user: UserDomain = await self.mariaUserPort.findUserByUserId(request.user_id)
+        if user is None:
+            userDomain: UserDomain = UserDomain.createTempUser(request)
+            return await self.mariaUserPort.saveUser(userDomain)
+        else:
+            raise HTTPException(status_code=400, detail="Already exists userno")
 
 class ChangeUserPasswordService(ChangeUserPasswordUsecase):
     def __init__(self,
@@ -46,7 +48,10 @@ class ChangeUserPasswordService(ChangeUserPasswordUsecase):
             userDomain.setPassword(password)
             inactive: bool = request.user_id is request.new_password
             userDomain.setActive(not inactive)
+            userDomain.setUsername(request.user_name)
             await self.mariaUserPort.saveUser(userDomain)
+        else:
+            raise HTTPException(status_code=400, detail="Incorrect password")
 
 class FindUserService(FindUserUsecase, FindUserByUserIdUsecase):
     def __init__(self,
@@ -66,6 +71,17 @@ class FindUserService(FindUserUsecase, FindUserByUserIdUsecase):
         if userDomain:
             return UserSchema(userId=userDomain.userId, username=userDomain.username, active=userDomain.active)
         return None
+
+class FindUserWithSocketService(FindUserByUserIdUsecase):
+
+    @override
+    async def findUserByUserId(self, userId: str) -> UserSchema | None:
+        with getMySqlDB().getSessionFactory().begin() as session:
+            self.mariaUserPort: MariaUserPort = RequestUserPersistenceAdapter(session)
+            userDomain: UserDomain = await self.mariaUserPort.findUserByUserId(userId)
+            if userDomain:
+                return UserSchema(userId=userDomain.userId, username=userDomain.username, active=userDomain.active)
+            return None
 
 class LogInService(LogInUsecase):
     def __init__(self,

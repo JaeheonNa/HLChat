@@ -8,6 +8,7 @@ class AddTempUserRequest(BaseModel):
 class ChangeUserPasswordRequest(BaseModel):
     user_id: str
     password: str
+    user_name: str
     new_password: str
 
 

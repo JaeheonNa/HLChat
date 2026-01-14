@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 from starlette.websockets import WebSocket
 
 from domain.messageRequest import SendMessageRequest
+from domain.response import RoomListSchema
+
 
 class SaveAndSendMessageUsecase(ABC):
     @abstractmethod
@@ -13,12 +16,12 @@ class SaveAndSendMessageUsecase(ABC):
 class FindSavedMessageUsecase(ABC):
 
     @abstractmethod
-    async def findSavedMessage(self, room_id: int, websocket: WebSocket) -> None:
+    async def findSavedMessagesByRoomId(self, room_id: int) -> None:
         pass
 
 class SubscribeMessageUsecase(ABC):
     @abstractmethod
-    async def subscribeMessage(self, room_id: int, websocket: WebSocket) -> None:
+    async def subscribeMessage(self, roomList: RoomListSchema, websocket: WebSocket, userId: str) -> None:
         pass
 
 

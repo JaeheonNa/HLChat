@@ -14,9 +14,7 @@ from domain.userDomain import UserDomain
 
 class RequestUserPersistenceAdapter(MariaUserPort):
 
-    def __init__(self,
-                 session: Session = Depends(getMySqlSession)
-    ):
+    def __init__(self, session: Session):
         self.session = session
 
     @override

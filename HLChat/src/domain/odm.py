@@ -1,13 +1,18 @@
 from datetime import datetime
-from typing import List
+from typing import List, Dict, Optional
 
 from odmantic import AIOEngine, Model
 
 class HLChatRoom(Model):
     room_id: int
+    room_name: str
     members: List[str]
     created_at: datetime
-
+    last_update_at: datetime
+    last_update_message: Optional[str] = None
+    last_update_message_ln_no: Optional[int] = None
+    last_update_user_id: Optional[str] = None
+    last_read: Dict[str, int] # [userId, message_ln_no]
     # Collection Name 지정.
     model_config = {"collection": "rooms"}
 
