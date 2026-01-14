@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 
 from domain.messageRequest import SendMessageRequest
 from domain.response import RoomListSchema, RoomSchema
-from domain.roomRequest import SaveRoomRequest
+from domain.roomDomain import RoomDomain
+from domain.roomRequest import SaveRoomRequest, UpdateLastReadRequest
 
 
 class MongoRoomPort(ABC):
@@ -19,7 +20,7 @@ class MongoRoomPort(ABC):
         pass
 
     @abstractmethod
-    async def findRoomByRoomId(self, room_id: int):
+    async def findRoomByRoomId(self, room_id: int) -> RoomDomain:
         pass
 
     @abstractmethod
@@ -28,4 +29,8 @@ class MongoRoomPort(ABC):
 
     @abstractmethod
     async def findAllRoomsByUserId(self, userId: str) -> RoomListSchema:
+        pass
+
+    @abstractmethod
+    async def updateLastRead(self, request: UpdateLastReadRequest, userId: str):
         pass

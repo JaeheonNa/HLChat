@@ -11,7 +11,7 @@ from datetime import datetime
 from common.mongo import getMonoDB
 from domain.response import RoomListSchema, RoomSchema
 from domain.roomDomain import RoomDomain
-from domain.roomRequest import SaveRoomRequest
+from domain.roomRequest import SaveRoomRequest, UpdateLastReadRequest
 
 
 class RequestRoomPersistenceAdapter(MongoRoomPort):
@@ -95,3 +95,12 @@ class RequestRoomPersistenceAdapter(MongoRoomPort):
                                                         .sort("last_update_at", -1)
                                                         .to_list())
         return RoomListSchema(rooms=[RoomSchema.model_validate(room) for room in roomList])
+
+    @override
+    async def updateLastRead(self, request: UpdateLastReadRequest, userId: str):
+        room: HLChatRoom = await self.mongo_db.find_one(HLChatRoom, HLChatRoom.room_id == request.room_id)
+        room.last_read = {
+            **room.last_read,
+            userId: request.message_ln_no
+        }
+        await self.mongo_db.save(room)

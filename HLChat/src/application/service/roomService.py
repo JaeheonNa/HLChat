@@ -7,11 +7,12 @@ from typing_extensions import override
 from adapter.output.roomPersistenceAdapter import RequestRoomPersistenceAdapter
 from adapter.output.userPersistenceAdapter import RequestUserPersistenceAdapter
 from application.port.input.roomUsecase import FindRoomIdUsecase, FindAllRoomsByUserIdUsecase, \
-    FindAndSendAllRoomsLastMessagesUsecase
+    FindAndSendAllRoomsLastMessagesUsecase, UpdateLastReadUsecase
 from application.port.output.roomPort import MongoRoomPort
 from application.port.output.userPort import MariaUserPort
 from domain.response import RoomListSchema
-from domain.roomRequest import SaveRoomRequest
+from domain.roomDomain import RoomDomain
+from domain.roomRequest import SaveRoomRequest, UpdateLastReadRequest
 from domain.userDomain import UserDomain
 
 
@@ -85,3 +86,13 @@ class FindAndSendAllRoomsLastMessagesService(FindAndSendAllRoomsLastMessagesUsec
                 }
             }
             await websocket.send_json(response_body)
+
+class UpdateLastReadService(UpdateLastReadUsecase):
+    def __init__(self,
+                 roomPort: MongoRoomPort = Depends(RequestRoomPersistenceAdapter)):
+        self.roomPort = roomPort
+
+    @override
+    async def updateLastRead(self, request: UpdateLastReadRequest, access_token: str):
+        user_id: str = UserDomain.decodeJWT(access_token)
+        await self.roomPort.updateLastRead(request, user_id)
