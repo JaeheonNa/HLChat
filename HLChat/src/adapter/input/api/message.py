@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends
 from starlette.websockets import WebSocket
 
@@ -52,13 +54,22 @@ async def websocket_endpoint(
     print("websocket accepted")
     roomList: RoomListSchema = await findAllRoomsByUserIdUsecase.findAllRoomsByUserId(userId=userId)
     await findAndSendAllRoomsLastMessagesUsecase.findAndSendAllRoomsLastMessages(userId=userId, roomList=roomList, websocket=websocket)
-    print("message founded")
     await subscribeMessageUsecase.subscribeMessage(roomList=roomList, websocket=websocket, userId=userId)
 
 # 특정 채팅방의 메시지를 50개씩 가져옴.
-@router.get("/{room_id}")
+@router.get("/init/{room_id}")
 async def findAllRoomsByRoomId(
         room_id: int,
+        access_token = Depends(get_access_token),
         findSavedMessagesByRoomIdUsecase: FindSavedMessageUsecase = Depends(FindSavedMessageService)
 ):
-    return await findSavedMessagesByRoomIdUsecase.findSavedMessagesByRoomId(room_id)
+    return await findSavedMessagesByRoomIdUsecase.findSavedMessagesByRoomId(room_id, None)
+
+@router.get("/{room_id}/{message_ln_no}")
+async def findAllRoomsByRoomId(
+        room_id: int,
+        message_ln_no: int | None = None,
+        access_token = Depends(get_access_token),
+        findSavedMessagesByRoomIdUsecase: FindSavedMessageUsecase = Depends(FindSavedMessageService)
+):
+    return await findSavedMessagesByRoomIdUsecase.findSavedMessagesByRoomId(room_id, message_ln_no)

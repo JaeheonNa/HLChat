@@ -72,9 +72,9 @@ class FindSavedMessageService(FindSavedMessageUsecase):
         self.mariaUserPort = mariaUserPort
 
     @override
-    async def findSavedMessagesByRoomId(self, room_id: int):
+    async def findSavedMessagesByRoomId(self, room_id: int, message_ln_no: int | None = None):
         room: RoomDomain = await self.mongoRoomPort.findRoomByRoomId(room_id)
-        latestMessages: List[HLChatMessage] = await self.mongoMessagePort.findSavedMessage(room_id)
+        latestMessages: List[HLChatMessage] = await self.mongoMessagePort.findSavedMessage(room_id, message_ln_no)
         responseBodyList = list()
         for msg in latestMessages:
             response_body = {

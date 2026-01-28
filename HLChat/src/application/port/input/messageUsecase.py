@@ -12,17 +12,13 @@ class SaveAndSendMessageUsecase(ABC):
     async def saveAndSendMessage(self, request: SendMessageRequest) -> None:
         pass
 
-
-class FindSavedMessageUsecase(ABC):
-
-    @abstractmethod
-    async def findSavedMessagesByRoomId(self, room_id: int) -> None:
-        pass
-
 class SubscribeMessageUsecase(ABC):
     @abstractmethod
     async def subscribeMessage(self, roomList: RoomListSchema, websocket: WebSocket, userId: str) -> None:
         pass
 
-
+class FindSavedMessageUsecase(ABC):
+    @abstractmethod
+    async def findSavedMessagesByRoomId(self, room_id: int, message_ln_no: int | None = None) -> None:
+        pass
 

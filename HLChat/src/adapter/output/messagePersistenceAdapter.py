@@ -37,9 +37,18 @@ class RequestMessagePersistenceAdapter(MongoMessagePort):
         return newMessageLnNo
 
     @override
-    async def findSavedMessage(self, room_id: int):
-        messages = await self.mongo_db.find(HLChatMessage,
-                                           HLChatMessage.room_id == room_id,
-                                           sort=HLChatMessage.message_ln_no.asc(),
-                                           limit=50)
-        return messages
+    async def findSavedMessage(self, room_id: int, message_ln_no: int | None = None):
+
+        if message_ln_no is None:
+            messages = await self.mongo_db.find(HLChatMessage,
+                                               HLChatMessage.room_id == room_id,
+                                               sort=HLChatMessage.message_ln_no.desc(),
+                                               limit=50)
+            return messages
+        else:
+            messages = await self.mongo_db.find(HLChatMessage,
+                                                HLChatMessage.room_id == room_id,
+                                                HLChatMessage.message_ln_no < message_ln_no,
+                                                sort=HLChatMessage.message_ln_no.desc(),
+                                                limit=50)
+            return messages

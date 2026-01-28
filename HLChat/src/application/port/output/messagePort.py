@@ -14,7 +14,7 @@ class MongoMessagePort(ABC):
         pass
 
     @abstractmethod
-    async def findSavedMessage(self, room_id: int) -> List[HLChatMessage] | None:
+    async def findSavedMessage(self, room_id: int, message_ln_no: int | None = None) -> List[HLChatMessage] | None:
         pass
 
 

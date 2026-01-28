@@ -1,9 +1,12 @@
 from contextlib import asynccontextmanager
+from datetime import datetime
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
 
 from adapter.input.api import message, user, room
+from common.exceptions import BasicException
 from common.mongo import getMonoDB
 from common.mysql import getMySqlDB
 
@@ -15,11 +18,9 @@ async def lifespan(app: FastAPI):
 
     mongoDB = getMonoDB()
     mongoDB.connect()
-    print("Connected to MongoDB")
 
     mysqlDB = getMySqlDB()
     mysqlDB.connect()
-    print("Connected to MySQL")
 
     yield
 
@@ -44,3 +45,15 @@ app.add_middleware(
 @app.get("/")
 def health_check_handler():
     return {"ping": "pong"}
+
+@app.exception_handler(BasicException)
+async def basic_exception_handler(request: Request, exc: BasicException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "timestamp": datetime.now().isoformat(),
+            "error_code": exc.error_code,
+            "message": exc.message,
+            "path": str(request.url.path)
+        }
+    )
