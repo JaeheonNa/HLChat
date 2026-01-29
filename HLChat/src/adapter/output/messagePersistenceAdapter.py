@@ -28,11 +28,23 @@ class RequestMessagePersistenceAdapter(MongoMessagePort):
     @override
     async def saveMessage(self, request: SendMessageRequest):
         newMessageLnNo = await self.find_message_ln_no(request)
-        new_message = HLChatMessage(room_id=request.room_id,
-                                message_ln_no=newMessageLnNo,
-                                sender=request.sender_id,
-                                message=request.message,
-                                created_at=datetime.now())
+        if request.message_type == "str":
+            new_message = HLChatMessage(room_id=request.room_id,
+                                        message_ln_no=newMessageLnNo,
+                                        sender=request.sender_id,
+                                        message=request.message,
+                                        message_type=request.message_type,
+                                        file_id=None,
+                                        created_at=datetime.now())
+        else:
+            new_message = HLChatMessage(room_id=request.room_id,
+                                        message_ln_no=newMessageLnNo,
+                                        sender=request.sender_id,
+                                        message=request.message,
+                                        message_type=request.message_type,
+                                        file_id=request.file_id,
+                                        file_path=request.file_path,
+                                        created_at=datetime.now())
         await self.mongo_db.save(new_message)
         return newMessageLnNo
 

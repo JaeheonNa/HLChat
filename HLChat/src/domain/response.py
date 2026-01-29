@@ -37,3 +37,18 @@ class RoomSchema(BaseModel):
 
 class RoomListSchema(BaseModel):
     rooms: List[RoomSchema]
+
+class FileSchema(BaseModel):
+    fileId: int = Field(alias="file_id")
+    fileName: str = Field(alias="file_name")
+    roomId: int = Field(alias="room_id")
+    senderId: str = Field(alias="sender_id")
+    filePath: str = Field(alias="file_path")
+    createdAt: datetime = Field(alias="created_at")
+
+    # sqlalchemy의 orm 객체를 받아서 매핑해주는 설정.
+    model_config = ConfigDict(from_attributes=True,
+                              populate_by_name=True)
+
+class FileListSchema(BaseModel):
+    files: List[FileSchema]

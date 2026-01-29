@@ -73,7 +73,6 @@ class FindAndSendAllRoomsLastMessagesService(FindAndSendAllRoomsLastMessagesUsec
             if room.lastUpdateMessageLnNo:
                 unreadMsgCnt = room.lastUpdateMessageLnNo - room.lastRead.get(userId, 0)
 
-            print(room)
             response_body = {
                 "roomId": room.roomId,
                 "messageData": {
@@ -85,6 +84,7 @@ class FindAndSendAllRoomsLastMessagesService(FindAndSendAllRoomsLastMessagesUsec
                     "lastUpdateMessageLnNo": room.lastUpdateMessageLnNo
                 }
             }
+
             await websocket.send_json(response_body)
 
 class UpdateLastReadService(UpdateLastReadUsecase):

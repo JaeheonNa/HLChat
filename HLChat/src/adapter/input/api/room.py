@@ -21,5 +21,4 @@ async def updateLastRead(request: UpdateLastReadRequest,
                          access_token: str = Depends(get_access_token),
                          roomHandler: UpdateLastReadUsecase = Depends(UpdateLastReadService)
                          ):
-    print("updateLastRead")
     await roomHandler.updateLastRead(request, access_token)

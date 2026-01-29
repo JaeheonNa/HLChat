@@ -21,8 +21,10 @@ class HLChatMessage(Model):
     message_ln_no: int
     sender: str
     message: str
+    message_type: str
     created_at: datetime
-
+    file_id: Optional[int] = None
+    file_path: Optional[str] = None
     # Collection Name 지정.
     model_config = {"collection": "messages"}
 
