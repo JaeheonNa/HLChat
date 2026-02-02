@@ -38,8 +38,7 @@ class FindFileService(FindFileUsecase):
         self.mongoRoomPort = mongoRoomPort
 
     @override
-    async def findFile(self, fileId: int, access_token: str) -> FileSchema:
-        userId: str = UserDomain.decodeJWT(access_token)
+    async def findFile(self, fileId: int, userId: str) -> FileSchema:
         file: FileSchema = await self.mariaFilePort.findFileByFileId(fileId)
         room: RoomDomain = await self.mongoRoomPort.findRoomByRoomId(file.roomId)
 

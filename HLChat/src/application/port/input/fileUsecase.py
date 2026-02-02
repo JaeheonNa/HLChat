@@ -12,5 +12,5 @@ class SaveFileUsecase(ABC):
 
 class FindFileUsecase(ABC):
     @abstractmethod
-    async def findFile(self, file_id: int, access_token: str) -> FileSchema:
+    async def findFile(self, file_id: int, user_id: str) -> FileSchema:
         pass
