@@ -1,0 +1,9 @@
+CREATE TABLE `file` (
+  `file_id` int NOT NULL AUTO_INCREMENT,
+  `file_name` varchar(256) NOT NULL,
+  `room_id` int NOT NULL,
+  `sender_id` varchar(256) NOT NULL,
+  `file_path` varchar(256) DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`file_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

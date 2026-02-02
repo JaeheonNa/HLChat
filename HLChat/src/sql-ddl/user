@@ -1,0 +1,16 @@
+CREATE TABLE `user` (
+  `user_id` varchar(256) NOT NULL,
+  `user_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `password` varchar(256) NOT NULL,
+  `active` tinyint(1) NOT NULL,
+  `email` varchar(256) DEFAULT NULL COMMENT '이메일',
+  `phone` varchar(20) DEFAULT NULL COMMENT '전화번호',
+  `phone_verified` tinyint(1) DEFAULT '0' COMMENT '본인인증 여부',
+  `profile_image` varchar(512) DEFAULT NULL COMMENT '프로필 이미지 경로',
+  `password_changed_at` datetime DEFAULT NULL COMMENT '비밀번호 변경일',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '가입일',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `provider` varchar(20) DEFAULT 'local' COMMENT 'local/kakao/naver/google',
+  `provider_id` varchar(256) DEFAULT NULL COMMENT 'OAuth 제공자 고유 ID',
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
