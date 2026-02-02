@@ -7,12 +7,12 @@ from typing_extensions import override
 from adapter.output.roomPersistenceAdapter import RequestRoomPersistenceAdapter
 from adapter.output.userPersistenceAdapter import RequestUserPersistenceAdapter
 from application.port.input.roomUsecase import FindRoomIdUsecase, FindAllRoomsByUserIdUsecase, \
-    FindAndSendAllRoomsLastMessagesUsecase, UpdateLastReadUsecase
+    FindAndSendAllRoomsLastMessagesUsecase, UpdateLastReadUsecase, CreateGroupRoomUsecase
 from application.port.output.roomPort import MongoRoomPort
 from application.port.output.userPort import MariaUserPort
 from domain.response import RoomListSchema
 from domain.roomDomain import RoomDomain
-from domain.roomRequest import SaveRoomRequest, UpdateLastReadRequest
+from domain.roomRequest import SaveRoomRequest, UpdateLastReadRequest, CreateGroupRoomRequest
 from domain.userDomain import UserDomain
 
 
@@ -96,3 +96,30 @@ class UpdateLastReadService(UpdateLastReadUsecase):
     async def updateLastRead(self, request: UpdateLastReadRequest, access_token: str):
         user_id: str = UserDomain.decodeJWT(access_token)
         await self.roomPort.updateLastRead(request, user_id)
+
+class CreateGroupRoomService(CreateGroupRoomUsecase):
+    def __init__(self,
+                 roomPort: MongoRoomPort = Depends(RequestRoomPersistenceAdapter),
+                 mariaUserPort: MariaUserPort = Depends(RequestUserPersistenceAdapter)):
+        self.roomPort = roomPort
+        self.mariaUserPort = mariaUserPort
+
+    @override
+    async def createGroupRoom(self, request: CreateGroupRoomRequest, access_token: str):
+        user_id: str = UserDomain.decodeJWT(access_token)
+        memberSet = set(request.members)
+        memberSet.add(user_id)
+        memberList = list(memberSet)
+
+        if request.room_name:
+            roomName = request.room_name
+        else:
+            users: List[UserDomain] = await self.mariaUserPort.findUsersByUserIds(memberList)
+            roomName = "|"
+            for user in users:
+                roomName += user.username + "|"
+
+        saveRequest = SaveRoomRequest(room_id=None,
+                                      members=memberList,
+                                      room_name=roomName)
+        return await self.roomPort.createRoom(saveRequest)

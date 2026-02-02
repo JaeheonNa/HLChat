@@ -10,3 +10,7 @@ class SaveRoomRequest(BaseModel):
 class UpdateLastReadRequest(BaseModel):
     room_id: int
     message_ln_no: int
+
+class CreateGroupRoomRequest(BaseModel):
+    members: List[str]
+    room_name: str | None = None

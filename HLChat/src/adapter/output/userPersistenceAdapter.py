@@ -31,10 +31,19 @@ class RequestUserPersistenceAdapter(MariaUserPort):
     async def findUserByUserId(self, user_id: str) -> UserDomain | None:
         user: User = self.session.scalar(select(User).where(User.user_id == user_id))
         if user is not None:
-            userDomain: UserDomain = UserDomain(userId=user.user_id,
-                                                password=user.password,
-                                                username=user.user_name,
-                                                active=user.active)
+            userDomain: UserDomain = UserDomain(
+                userId=user.user_id,
+                password=user.password,
+                username=user.user_name,
+                active=user.active,
+                email=user.email,
+                phone=user.phone,
+                phone_verified=user.phone_verified,
+                profile_image=user.profile_image,
+                password_changed_at=user.password_changed_at,
+                created_at=user.created_at,
+                updated_at=user.updated_at
+            )
             return userDomain
         else:
             return None

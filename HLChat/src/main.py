@@ -1,7 +1,9 @@
+import os
 from contextlib import asynccontextmanager
 from datetime import datetime
 
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
@@ -35,6 +37,12 @@ app.include_router(message.router)
 app.include_router(user.router)
 app.include_router(room.router)
 app.include_router(file.router)
+
+# Static files for profile images
+STATIC_DIR = "static"
+if not os.path.exists(STATIC_DIR):
+    os.makedirs(STATIC_DIR)
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # 또는 프론트엔드 주소

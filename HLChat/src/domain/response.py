@@ -19,6 +19,19 @@ class UserListSchema(BaseModel):
 class JWTResponse(BaseModel):
     access_token: str
     username: str
+    password_expired: bool = False
+
+
+class MyProfileResponse(BaseModel):
+    user_id: str
+    user_name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    profile_image: Optional[str] = None
+
+
+class ProfileImageResponse(BaseModel):
+    image_url: str
 
 class RoomSchema(BaseModel):
     roomId: int = Field(alias="room_id")

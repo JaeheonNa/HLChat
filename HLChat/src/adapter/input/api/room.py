@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 
-from application.port.input.roomUsecase import FindRoomIdUsecase, UpdateLastReadUsecase
-from application.service.roomService import FindRoomIdService, UpdateLastReadService
+from application.port.input.roomUsecase import FindRoomIdUsecase, UpdateLastReadUsecase, CreateGroupRoomUsecase
+from application.service.roomService import FindRoomIdService, UpdateLastReadService, CreateGroupRoomService
 from common.security import get_access_token
-from domain.roomRequest import UpdateLastReadRequest
+from domain.roomRequest import UpdateLastReadRequest, CreateGroupRoomRequest
 
 router = APIRouter(prefix="/room")
 
@@ -22,3 +22,11 @@ async def updateLastRead(request: UpdateLastReadRequest,
                          roomHandler: UpdateLastReadUsecase = Depends(UpdateLastReadService)
                          ):
     await roomHandler.updateLastRead(request, access_token)
+
+@router.post("/group")
+async def createGroupRoom(
+    request: CreateGroupRoomRequest,
+    access_token: str = Depends(get_access_token),
+    roomHandler: CreateGroupRoomUsecase = Depends(CreateGroupRoomService)
+):
+    return await roomHandler.createGroupRoom(request, access_token)

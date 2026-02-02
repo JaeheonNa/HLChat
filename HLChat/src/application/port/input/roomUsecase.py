@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from starlette.websockets import WebSocket
 
 from domain.response import RoomListSchema
-from domain.roomRequest import UpdateLastReadRequest
+from domain.roomRequest import UpdateLastReadRequest, CreateGroupRoomRequest
 
 
 class FindRoomIdUsecase(ABC):
@@ -24,4 +24,9 @@ class FindAndSendAllRoomsLastMessagesUsecase(ABC):
 class UpdateLastReadUsecase(ABC):
     @abstractmethod
     async def updateLastRead(self, request: UpdateLastReadRequest, access_token: str):
+        pass
+
+class CreateGroupRoomUsecase(ABC):
+    @abstractmethod
+    async def createGroupRoom(self, request: CreateGroupRoomRequest, access_token: str):
         pass
