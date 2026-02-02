@@ -74,3 +74,9 @@ class UploadProfileImageUsecase(ABC):
     @abstractmethod
     async def uploadProfileImage(self, access_token: str, file: UploadFile) -> ProfileImageResponse:
         pass
+
+
+class VerifyTokenUsecase(ABC):
+    @abstractmethod
+    async def verifyToken(self, access_token: str) -> MyProfileResponse:
+        pass

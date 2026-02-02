@@ -27,7 +27,7 @@ async def uploadFile(
         print(f"업로드 에러: {e}")
         raise HTTPException(status_code=500, detail="파일 업로드 중 오류 발생")
 
-@router.get("/{file_id}/{user_id}")
+@router.get("/info/{file_id}/{user_id}")
 async def findFileInfo(file_id: int,
                        user_id: str,
                        findFileUsecase: FindFileUsecase = Depends(FindFileService)

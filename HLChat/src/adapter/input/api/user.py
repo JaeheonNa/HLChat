@@ -3,12 +3,14 @@ from fastapi import APIRouter, Depends, UploadFile, File
 from application.port.input.userUsecase import (
     SaveTempUserUsecase, ChangeUserPasswordUsecase, FindUserUsecase,
     LogInUsecase, ChangeUsernameUsecase, FindUserByRoomIdUsecase,
-    RegisterUsecase, GetMyProfileUsecase, UpdateMyProfileUsecase, UploadProfileImageUsecase
+    RegisterUsecase, GetMyProfileUsecase, UpdateMyProfileUsecase, UploadProfileImageUsecase,
+    VerifyTokenUsecase
 )
 from application.service.userService import (
     SaveTempUserService, ChangeUserPasswordService, FindUserService,
     LogInService, ChangeUsernameService, FindUserByRoomIdService,
-    RegisterService, GetMyProfileService, UpdateMyProfileService, UploadProfileImageService
+    RegisterService, GetMyProfileService, UpdateMyProfileService, UploadProfileImageService,
+    VerifyTokenService
 )
 from common.security import get_access_token
 from domain.userRequest import (

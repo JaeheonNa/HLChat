@@ -10,7 +10,8 @@ from adapter.output.userPersistenceAdapter import RequestUserPersistenceAdapter
 from application.port.input.userUsecase import (
     SaveTempUserUsecase, ChangeUserPasswordUsecase, FindUserUsecase,
     LogInUsecase, FindUserByUserIdUsecase, ChangeUsernameUsecase, FindUserByRoomIdUsecase,
-    RegisterUsecase, GetMyProfileUsecase, UpdateMyProfileUsecase, UploadProfileImageUsecase
+    RegisterUsecase, GetMyProfileUsecase, UpdateMyProfileUsecase, UploadProfileImageUsecase,
+    VerifyTokenUsecase
 )
 from application.port.output.roomPort import MongoRoomPort
 from application.port.output.userPort import MariaUserPort

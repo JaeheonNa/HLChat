@@ -22,3 +22,5 @@ class FindSavedMessageUsecase(ABC):
     async def findSavedMessagesByRoomId(self, room_id: int, message_ln_no: int | None = None) -> None:
         pass
 
+
+
