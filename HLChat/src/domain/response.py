@@ -8,6 +8,7 @@ class UserSchema(BaseModel):
     userId: str = Field(alias="user_id")
     username: str | None = Field(default=None, alias="user_name")
     active: bool
+    profile_image: Optional[str] = Field(default=None, alias="profile_image")
 
     # sqlalchemy의 orm 객체를 받아서 매핑해주는 설정.
     model_config = ConfigDict(from_attributes=True,
@@ -28,6 +29,7 @@ class MyProfileResponse(BaseModel):
     email: Optional[str] = None
     phone: Optional[str] = None
     profile_image: Optional[str] = None
+    provider: str = 'LOCAL'
 
 
 class ProfileImageResponse(BaseModel):
@@ -48,6 +50,10 @@ class RoomSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True,
                               populate_by_name=True)
 
+class RoomBaseInfoSchema(BaseModel):
+    roomId: int = Field(alias="room_id")
+    members: List[str] | None = Field(default=None)
+
 class RoomListSchema(BaseModel):
     rooms: List[RoomSchema]
 
@@ -65,3 +71,21 @@ class FileSchema(BaseModel):
 
 class FileListSchema(BaseModel):
     files: List[FileSchema]
+
+
+class KakaoAuthUrlResponse(BaseModel):
+    auth_url: str
+
+
+class KakaoCallbackResponse(BaseModel):
+    requires_registration: bool
+    access_token: Optional[str] = None
+    user_id: Optional[str] = None
+    username: Optional[str] = None
+    provider_id: Optional[str] = None
+    nickname: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    profile_image: Optional[str] = None
+    existing_user_id: Optional[str] = None
+    existing_user_name: Optional[str] = None

@@ -5,7 +5,7 @@ import bcrypt
 from jose import jwt
 
 from domain.orm import User
-from domain.userRequest import AddTempUserRequest, RegisterRequest
+from domain.userRequest import AddTempUserRequest, RegisterRequest, KakaoRegisterRequest
 from datetime import datetime, timedelta
 
 PASSWORD_EXPIRY_DAYS = 90
@@ -22,6 +22,8 @@ class UserDomain():
         phone: Optional[str] = None,
         phone_verified: bool = False,
         profile_image: Optional[str] = None,
+        provider: str = 'LOCAL',
+        provider_id: Optional[str] = None,
         password_changed_at: Optional[datetime] = None,
         created_at: Optional[datetime] = None,
         updated_at: Optional[datetime] = None
@@ -34,6 +36,8 @@ class UserDomain():
         self.phone = phone
         self.phone_verified = phone_verified
         self.profile_image = profile_image
+        self.provider = provider
+        self.provider_id = provider_id
         self.password_changed_at = password_changed_at
         self.created_at = created_at
         self.updated_at = updated_at
@@ -67,6 +71,26 @@ class UserDomain():
             active=True,
             email=request.email,
             phone=request.phone,
+            password_changed_at=now,
+            created_at=now,
+            updated_at=now
+        )
+
+    @classmethod
+    def createKakaoUser(cls, request: KakaoRegisterRequest):
+        import uuid
+        random_password = cls.hashedPassword(uuid.uuid4().hex)
+        now = datetime.now()
+        return cls(
+            userId=request.user_id,
+            password=random_password,
+            username=request.user_name,
+            active=True,
+            email=request.email,
+            phone=request.phone,
+            profile_image=request.profile_image,
+            provider=request.provider,
+            provider_id=request.provider_id,
             password_changed_at=now,
             created_at=now,
             updated_at=now
@@ -121,6 +145,8 @@ class UserDomain():
             phone=self.phone,
             phone_verified=self.phone_verified,
             profile_image=self.profile_image,
+            provider=self.provider,
+            provider_id=self.provider_id,
             password_changed_at=self.password_changed_at,
             created_at=self.created_at,
             updated_at=self.updated_at

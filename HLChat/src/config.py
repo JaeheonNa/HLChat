@@ -38,3 +38,7 @@ mongo_db_name = get_secret("mongo.db")
 encoding = get_secret("encoding")
 secret_key = get_secret("secret_key")
 jwt_algorithm = get_secret("jwt_algorithm")
+
+kakao_client_id = get_secret("kakao.client_id", "")
+kakao_client_secret = get_secret("kakao.client_secret", "")
+kakao_redirect_uri = get_secret("kakao.redirect_uri", "")

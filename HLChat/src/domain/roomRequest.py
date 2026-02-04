@@ -14,3 +14,6 @@ class UpdateLastReadRequest(BaseModel):
 class CreateGroupRoomRequest(BaseModel):
     members: List[str]
     room_name: str | None = None
+
+class InviteMembersRequest(BaseModel):
+    members: List[str]

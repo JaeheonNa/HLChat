@@ -2,6 +2,17 @@
 bin
 include
 lib
-*.pyc
+HLChat/secrets.json
 secrets.json
+pyvenv.cfg
+*.pyc
+.idea
+CLAUDE.md
+.DS_Store
+
+# Deployment secrets
+deploy
+deploy/.env
+deploy/secrets.json
 uploads
+

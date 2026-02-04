@@ -28,7 +28,7 @@ class SaveAndSendMessageService(SaveAndSendMessageUsecase):
                   mongoMessagePort: MongoMessagePort = Depends(RequestMessagePersistenceAdapter),
                   mongoRoomPort: MongoRoomPort = Depends(RequestRoomPersistenceAdapter),
                   redisMessagePort: RedisPublishMessagePort = Depends(RedisStreamProducer),
-                  redisPubSubManager: RedisPubSubManager = Depends(get_connection_manager),):
+                  redisPubSubManager: RedisPubSubManager = Depends(get_connection_manager)):
         self.mongoMessagePort = mongoMessagePort
         self.mongoRoomPort = mongoRoomPort
         self.redisMessagePort = redisMessagePort
@@ -42,6 +42,7 @@ class SaveAndSendMessageService(SaveAndSendMessageUsecase):
             subscriber = self.redisPubSubManager.get_subscriber(member)
             if subscriber is not None:
                 await self.redisPubSubManager.add_room_subscription(member, str(roomSchema.roomId))
+
         roomId = str(request.room_id)
         message = {
             "lastUserId": request.sender_id,
@@ -104,5 +105,5 @@ class SubscribeMessageService(SubscribeMessageUsecase):
                   redisMessagePort: RedisSubscribeMessagePort = Depends(RedisStreamSubscriber)):
         self.redisMessagePort = redisMessagePort
     @override
-    async def subscribeMessage(self, roomList: RoomListSchema, websocket: WebSocket, userId: str):
-        await self.redisMessagePort.subscribeMessage(roomList, websocket, userId)
+    async def subscribeMessage(self, roomList: RoomListSchema, userId: str):
+        await self.redisMessagePort.subscribeMessage(roomList, userId)

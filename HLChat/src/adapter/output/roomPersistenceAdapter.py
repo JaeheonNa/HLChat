@@ -104,3 +104,9 @@ class RequestRoomPersistenceAdapter(MongoRoomPort):
             userId: request.message_ln_no
         }
         await self.mongo_db.save(room)
+
+    @override
+    async def updateRoomMember(self, roomDomain: RoomDomain):
+        room: HLChatRoom = await self.mongo_db.find_one(HLChatRoom, HLChatRoom.room_id == roomDomain.roomId)
+        room.members = roomDomain.members
+        await self.mongo_db.save(room)

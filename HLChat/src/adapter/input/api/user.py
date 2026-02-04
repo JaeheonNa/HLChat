@@ -12,10 +12,12 @@ from application.service.userService import (
     RegisterService, GetMyProfileService, UpdateMyProfileService, UploadProfileImageService,
     VerifyTokenService
 )
+from application.service.kakaoService import KakaoAuthService
 from common.security import get_access_token
 from domain.userRequest import (
     AddTempUserRequest, ChangeUserPasswordRequest, LogInRequest,
-    ChangeUsernameRequest, RegisterRequest, UpdateMyProfileRequest
+    ChangeUsernameRequest, RegisterRequest, UpdateMyProfileRequest,
+    KakaoRegisterRequest, KakaoLinkRequest, KakaoCheckExistingRequest
 )
 
 router = APIRouter(prefix="/user")
@@ -96,10 +98,57 @@ async def logIn(
     return await userHandler.logIn(request)
 
 
+@router.get("/verify-token", status_code=200)
+async def verifyToken(
+    access_token: str = Depends(get_access_token),
+    userHandler: VerifyTokenUsecase = Depends(VerifyTokenService)
+):
+    return await userHandler.verifyToken(access_token)
+
+
+@router.get("/kakao/login", status_code=200)
+async def getKakaoAuthUrl(
+    kakaoHandler: KakaoAuthService = Depends(KakaoAuthService)
+):
+    return await kakaoHandler.getKakaoAuthUrl()
+
+
+@router.get("/kakao/callback", status_code=200)
+async def kakaoCallback(
+    code: str,
+    auto_register: bool = True,
+    kakaoHandler: KakaoAuthService = Depends(KakaoAuthService)
+):
+    return await kakaoHandler.handleKakaoCallback(code, auto_register)
+
+
+@router.post("/kakao/register", status_code=201)
+async def kakaoRegister(
+    request: KakaoRegisterRequest,
+    kakaoHandler: KakaoAuthService = Depends(KakaoAuthService)
+):
+    return await kakaoHandler.registerKakaoUser(request)
+
+
+@router.post("/kakao/check-existing", status_code=200)
+async def kakaoCheckExisting(
+    request: KakaoCheckExistingRequest,
+    kakaoHandler: KakaoAuthService = Depends(KakaoAuthService)
+):
+    return await kakaoHandler.checkExistingUser(request.user_name, request.phone)
+
+
+@router.post("/kakao/link", status_code=200)
+async def kakaoLink(
+    request: KakaoLinkRequest,
+    kakaoHandler: KakaoAuthService = Depends(KakaoAuthService)
+):
+    return await kakaoHandler.linkKakaoAccount(request.user_id, request.provider, request.provider_id)
+
+
 @router.get("/{room_id}", status_code=200)
 async def findUserByRoomId(
     room_id: int,
     userHandler: FindUserByRoomIdUsecase = Depends(FindUserByRoomIdService)
 ):
-    print("room_id: ", room_id)
     return await userHandler.findUserByRoomId(room_id)

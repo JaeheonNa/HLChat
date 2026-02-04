@@ -22,3 +22,11 @@ class MariaUserPort(ABC):
     @abstractmethod
     async def findAllUsers(self) -> List[UserSchema]:
         pass
+
+    @abstractmethod
+    async def findUserByProviderId(self, provider: str, provider_id: str) -> UserDomain | None:
+        pass
+
+    @abstractmethod
+    async def findUserByNameAndPhone(self, user_name: str, phone: str) -> UserDomain | None:
+        pass

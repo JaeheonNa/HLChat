@@ -15,6 +15,8 @@ class User(Base):
     phone = Column(String, nullable=True)
     phone_verified = Column(Boolean, default=False)
     profile_image = Column(String, nullable=True)
+    provider = Column(String, default='LOCAL')
+    provider_id = Column(String, nullable=True)
     password_changed_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)

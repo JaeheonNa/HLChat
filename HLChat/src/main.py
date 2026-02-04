@@ -7,7 +7,8 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
-from adapter.input.api import message, user, room, file
+from adapter.input.api import message, user, room, file, webSocket
+from adapter.input.api import message, user, room, file, reaction
 from common.exceptions import BasicException
 from common.mongo import getMonoDB
 from common.mysql import getMySqlDB
@@ -33,10 +34,12 @@ async def lifespan(app: FastAPI):
     print("Disconnected from MongoDB")
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(reaction.router)  # reaction을 먼저 등록 (더 구체적인 경로)
 app.include_router(message.router)
 app.include_router(user.router)
 app.include_router(room.router)
 app.include_router(file.router)
+app.include_router(webSocket.router)
 
 # Static files for profile images
 STATIC_DIR = "static"

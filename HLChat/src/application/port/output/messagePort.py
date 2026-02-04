@@ -6,6 +6,7 @@ from starlette.websockets import WebSocket
 from domain.messageRequest import SendMessageRequest
 from domain.odm import HLChatMessage
 from domain.response import RoomListSchema
+from domain.roomDomain import RoomDomain
 
 
 class MongoMessagePort(ABC):
@@ -25,5 +26,9 @@ class RedisPublishMessagePort(ABC):
 
 class RedisSubscribeMessagePort(ABC):
     @abstractmethod
-    async def subscribeMessage(self, roomList: RoomListSchema, websocket: WebSocket, userId: str):
+    async def subscribeMessage(self, roomList: RoomListSchema, userId: str):
+        pass
+
+    @abstractmethod
+    async def subscribeXRoomMessage(self, room: int, userId: str):
         pass

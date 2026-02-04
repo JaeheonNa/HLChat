@@ -28,5 +28,14 @@ class HLChatMessage(Model):
     # Collection Name 지정.
     model_config = {"collection": "messages"}
 
+class HLChatReaction(Model):
+    room_id: int
+    message_ln_no: int
+    reaction_type: str
+    user_id: str
+    user_name: str
+    created_at: datetime
+    model_config = {"collection": "reactions"}
+
 # MongoDB: db -> collection -> document
 # MySQL: db -> table -> row

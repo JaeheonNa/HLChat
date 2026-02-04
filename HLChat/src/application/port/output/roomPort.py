@@ -34,3 +34,7 @@ class MongoRoomPort(ABC):
     @abstractmethod
     async def updateLastRead(self, request: UpdateLastReadRequest, userId: str):
         pass
+
+    @abstractmethod
+    async def updateRoomMember(self, room: RoomDomain):
+        pass

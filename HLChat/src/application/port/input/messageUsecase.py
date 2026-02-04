@@ -14,7 +14,7 @@ class SaveAndSendMessageUsecase(ABC):
 
 class SubscribeMessageUsecase(ABC):
     @abstractmethod
-    async def subscribeMessage(self, roomList: RoomListSchema, websocket: WebSocket, userId: str) -> None:
+    async def subscribeMessage(self, roomList: RoomListSchema, userId: str) -> None:
         pass
 
 class FindSavedMessageUsecase(ABC):

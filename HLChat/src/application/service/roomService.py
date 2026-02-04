@@ -1,18 +1,22 @@
 from typing import List
 
-from fastapi import Depends
-from starlette.websockets import WebSocket
+from fastapi import Depends, HTTPException
 from typing_extensions import override
 
+from adapter.output.redisStreamSubscriber import RedisStreamSubscriber
 from adapter.output.roomPersistenceAdapter import RequestRoomPersistenceAdapter
 from adapter.output.userPersistenceAdapter import RequestUserPersistenceAdapter
 from application.port.input.roomUsecase import FindRoomIdUsecase, FindAllRoomsByUserIdUsecase, \
-    FindAndSendAllRoomsLastMessagesUsecase, UpdateLastReadUsecase, CreateGroupRoomUsecase
+    FindAndSendAllRoomsLastMessagesUsecase, UpdateLastReadUsecase, CreateGroupRoomUsecase, UpdateRoomMemberUseCase, \
+    FindRoomInfoByRoomIdUseCase, InviteMembersUsecase
+from application.port.output.messagePort import RedisSubscribeMessagePort
 from application.port.output.roomPort import MongoRoomPort
 from application.port.output.userPort import MariaUserPort
-from domain.response import RoomListSchema
+from common.redisPubSubManager import RedisPubSubManager, get_connection_manager
+from adapter.output.webSocket import WebSocketConnectionManager, get_websocket_connection_manager
+from domain.response import RoomListSchema, RoomBaseInfoSchema, UserSchema, UserListSchema
 from domain.roomDomain import RoomDomain
-from domain.roomRequest import SaveRoomRequest, UpdateLastReadRequest, CreateGroupRoomRequest
+from domain.roomRequest import SaveRoomRequest, UpdateLastReadRequest, CreateGroupRoomRequest, InviteMembersRequest
 from domain.userDomain import UserDomain
 
 
@@ -44,7 +48,6 @@ class FindRoomIdService(FindRoomIdUsecase):
         roomName = "|"
         for user in users:
             roomName += user.username + "|"
-        print("roomName:", roomName)
         request = SaveRoomRequest(room_id=None,
                                   members=memberList,
                                   room_name=roomName)
@@ -62,12 +65,14 @@ class FindAllRoomsByUserIdService(FindAllRoomsByUserIdUsecase):
 class FindAndSendAllRoomsLastMessagesService(FindAndSendAllRoomsLastMessagesUsecase):
     def __init__(self,
                  roomPort: MongoRoomPort = Depends(RequestRoomPersistenceAdapter),
-                 mariaUserPort = Depends(RequestUserPersistenceAdapter)):
+                 mariaUserPort = Depends(RequestUserPersistenceAdapter),
+                 connectionManager: WebSocketConnectionManager = Depends(get_websocket_connection_manager)):
+        self.connectionManager = connectionManager
         self.roomPort = roomPort
         self.mariaUserPort = mariaUserPort
 
     @override
-    async def findAndSendAllRoomsLastMessages(self, userId: str, roomList: RoomListSchema, websocket: WebSocket):
+    async def findAndSendAllRoomsLastMessages(self, userId: str, roomList: RoomListSchema):
         for room in roomList.rooms:
             unreadMsgCnt = 0
             if room.lastUpdateMessageLnNo:
@@ -84,8 +89,7 @@ class FindAndSendAllRoomsLastMessagesService(FindAndSendAllRoomsLastMessagesUsec
                     "lastUpdateMessageLnNo": room.lastUpdateMessageLnNo
                 }
             }
-
-            await websocket.send_json(response_body)
+            await self.connectionManager.send_json(userId, response_body)
 
 class UpdateLastReadService(UpdateLastReadUsecase):
     def __init__(self,
@@ -123,3 +127,66 @@ class CreateGroupRoomService(CreateGroupRoomUsecase):
                                       members=memberList,
                                       room_name=roomName)
         return await self.roomPort.createRoom(saveRequest)
+
+class UpdateRoomMemberService(UpdateRoomMemberUseCase):
+    def __init__(self,
+                 roomPort: MongoRoomPort = Depends(RequestRoomPersistenceAdapter),
+                 redisPubSubManager: RedisPubSubManager = Depends(get_connection_manager)):
+        self.roomPort = roomPort
+        self.redisPubSubManager = redisPubSubManager
+
+    @override
+    async def leaveRoom(self, roomId: int, userId: str):
+        room: RoomDomain = await self.roomPort.findRoomByRoomId(roomId)
+        room.members.remove(userId)
+        await self.roomPort.updateRoomMember(room)
+        subscriber: 'RedisStreamSubscriber' = self.redisPubSubManager.get_subscriber(userId)
+        await subscriber.unsubscribe_from_room(str(roomId), userId)
+
+    @override
+    async def addRoomMember(self, roomId: int, userId: str, memberId: str):
+        pass
+
+class FindRoomInfoByRoomIdService(FindRoomInfoByRoomIdUseCase):
+    def __init__(self,
+                 roomPort: MongoRoomPort = Depends(RequestRoomPersistenceAdapter)
+    ):
+        self.roomPort = roomPort
+
+    async def findRoomInfoByRoomId(self, roomId: int, userId: str):
+        room: RoomDomain = await self.roomPort.findRoomByRoomId(roomId)
+        if userId not in room.members:
+            raise HTTPException(status_code=401, detail="Unauthorized(findRoomInfoByRoomId)")
+        return RoomBaseInfoSchema(room_id=room.roomId,
+                                members=room.members)
+
+class InviteMembersService(InviteMembersUsecase):
+    def __init__(self,
+                 roomPort: MongoRoomPort = Depends(RequestRoomPersistenceAdapter),
+                 mariaUserPort: MariaUserPort = Depends(RequestUserPersistenceAdapter),
+                 redisMessagePort: RedisSubscribeMessagePort = Depends(RedisStreamSubscriber)
+    ):
+        self.roomPort = roomPort
+        self.mariaUserPort = mariaUserPort
+        self.redisMessagePort = redisMessagePort
+
+    async def inviteMembers(self, roomId: int, userId: str, request: InviteMembersRequest) -> UserListSchema:
+        room: RoomDomain = await self.roomPort.findRoomByRoomId(roomId)
+        if userId not in room.members:
+            raise HTTPException(status_code=401, detail="Unauthorized(inviteMembers)")
+        for invitee in request.members:
+            if invitee in room.members:
+                raise HTTPException(status_code=409, detail="User already invited")
+        room.members.extend(request.members)
+        await self.roomPort.updateRoomMember(room)
+        userDomainList: List[UserDomain] = await self.mariaUserPort.findUsersByUserIds(request.members)
+        userSchemaList = []
+        for userDomain in userDomainList:
+            userSchemaList.append(UserSchema(user_id=userDomain.userId,
+                                             user_name=userDomain.username,
+                                             active=userDomain.active,
+                                             profile_image=userDomain.profile_image))
+        for invitee in request.members:
+            await self.redisMessagePort.subscribeXRoomMessage(room.roomId, invitee)
+        return UserListSchema(users=userSchemaList)
+

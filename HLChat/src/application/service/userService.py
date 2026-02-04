@@ -115,7 +115,7 @@ class LogInService(LogInUsecase):
                         password_expired=password_expired
                     )
                 else:
-                    raise HTTPException(status_code=401, detail="Not Authorized")
+                    raise HTTPException(status_code=401, detail="Unauthorized")
             else:
                 raise HTTPException(status_code=403, detail="Inactive user. Password changing is required.")
         else:
@@ -185,7 +185,8 @@ class GetMyProfileService(GetMyProfileUsecase):
             user_name=userDomain.username,
             email=userDomain.email,
             phone=userDomain.phone,
-            profile_image=userDomain.profile_image
+            profile_image=userDomain.profile_image,
+            provider=userDomain.provider
         )
 
 
@@ -215,7 +216,8 @@ class UpdateMyProfileService(UpdateMyProfileUsecase):
             user_name=userDomain.username,
             email=userDomain.email,
             phone=userDomain.phone,
-            profile_image=userDomain.profile_image
+            profile_image=userDomain.profile_image,
+            provider=userDomain.provider
         )
 
 
@@ -249,3 +251,32 @@ class UploadProfileImageService(UploadProfileImageUsecase):
         await self.mariaUserPort.saveUser(userDomain)
 
         return ProfileImageResponse(image_url=image_url)
+
+
+class VerifyTokenService(VerifyTokenUsecase):
+    def __init__(self,
+                 mariaUserPort: MariaUserPort = Depends(RequestUserPersistenceAdapter)):
+        self.mariaUserPort = mariaUserPort
+
+    @override
+    async def verifyToken(self, access_token: str) -> MyProfileResponse:
+        try:
+            user_id = UserDomain.decodeJWT(access_token)
+        except Exception:
+            raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+        userDomain = await self.mariaUserPort.findUserByUserId(user_id)
+        if userDomain is None:
+            raise HTTPException(status_code=401, detail="User not found")
+
+        if not userDomain.active:
+            raise HTTPException(status_code=401, detail="Inactive user")
+
+        return MyProfileResponse(
+            user_id=userDomain.userId,
+            user_name=userDomain.username,
+            email=userDomain.email,
+            phone=userDomain.phone,
+            profile_image=userDomain.profile_image,
+            provider=userDomain.provider
+        )

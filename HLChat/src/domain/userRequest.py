@@ -34,3 +34,25 @@ class UpdateMyProfileRequest(BaseModel):
     user_name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
+
+
+class KakaoRegisterRequest(BaseModel):
+    provider: str = 'KAKAO'
+    provider_id: str
+    user_id: str
+    user_name: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    profile_image: Optional[str] = None
+
+
+class KakaoLinkRequest(BaseModel):
+    user_id: str
+    provider: str = 'KAKAO'
+    provider_id: str
+
+
+class KakaoCheckExistingRequest(BaseModel):
+    user_name: str
+    phone: str
+    provider_id: str

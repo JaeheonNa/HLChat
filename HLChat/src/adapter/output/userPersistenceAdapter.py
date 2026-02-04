@@ -40,6 +40,8 @@ class RequestUserPersistenceAdapter(MariaUserPort):
                 phone=user.phone,
                 phone_verified=user.phone_verified,
                 profile_image=user.profile_image,
+                provider=user.provider or 'LOCAL',
+                provider_id=user.provider_id,
                 password_changed_at=user.password_changed_at,
                 created_at=user.created_at,
                 updated_at=user.updated_at
@@ -59,3 +61,53 @@ class RequestUserPersistenceAdapter(MariaUserPort):
                                                        .where(User.user_id.in_(user_id_list))
                                                        .where(User.active == True))
         return [UserDomain(userId=user.user_id, username=user.user_name, password=None, active=True) for user in users]
+
+    @override
+    async def findUserByProviderId(self, provider: str, provider_id: str) -> UserDomain | None:
+        user: User = self.session.scalar(
+            select(User).where(User.provider == provider, User.provider_id == provider_id)
+        )
+        if user is not None:
+            userDomain: UserDomain = UserDomain(
+                userId=user.user_id,
+                password=user.password,
+                username=user.user_name,
+                active=user.active,
+                email=user.email,
+                phone=user.phone,
+                phone_verified=user.phone_verified,
+                profile_image=user.profile_image,
+                provider=user.provider or 'LOCAL',
+                provider_id=user.provider_id,
+                password_changed_at=user.password_changed_at,
+                created_at=user.created_at,
+                updated_at=user.updated_at
+            )
+            return userDomain
+        else:
+            return None
+
+    @override
+    async def findUserByNameAndPhone(self, user_name: str, phone: str) -> UserDomain | None:
+        user: User = self.session.scalar(
+            select(User).where(User.user_name == user_name, User.phone == phone, User.active == True)
+        )
+        if user is not None:
+            userDomain: UserDomain = UserDomain(
+                userId=user.user_id,
+                password=user.password,
+                username=user.user_name,
+                active=user.active,
+                email=user.email,
+                phone=user.phone,
+                phone_verified=user.phone_verified,
+                profile_image=user.profile_image,
+                provider=user.provider or 'LOCAL',
+                provider_id=user.provider_id,
+                password_changed_at=user.password_changed_at,
+                created_at=user.created_at,
+                updated_at=user.updated_at
+            )
+            return userDomain
+        else:
+            return None
